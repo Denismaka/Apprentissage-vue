@@ -1,60 +1,78 @@
-<!-- ################# -->
-<!-- La syntaxe Vue Js -->
-<!-- ################# -->
-/* Voici un exemple de compteur simple en Vue.js. Le compteur commence à 0 et
-s'incrémente de 1 toutes les secondes grâce à la fonction setInterval. Vous
-pouvez également ajouter des boutons pour incrémenter ou décrémenter
-manuellement le compteur. */
+<!-- ########################### -->
+<!-- TP  Todolist avec Vue js    -->
+<!-- ########################### -->
+
 <template>
-    <p>compteur : {{ count }}</p>
-    <div v-show="count >= 5">Bravo vous avez cliqué plus de 5 fois !</div>
-    <button @click="increment">Incrémenter</button>
-    <button @click="decrement">Decrémenter</button>
+    <form action="" @submit.prevent="addTodo">
+        <fieldset role="group">
+            <input
+                v-model="newTodo"
+                type="text"
+                placeholder="Tâche à effectuer"
+            />
+            <button :disabled="newTodo.length === 0">Ajouter</button>
+        </fieldset>
+    </form>
+    <div v-if="todos.length === 0">Vous n'avez pas de tâches à faire :(</div>
+    <div v-else>
+        <ul>
+            <li
+                v-for="todo in sortedTodos()"
+                :key="todo.date"
+                :class="{ completed: todo.completed }"
+            >
+                <label>
+                    <input type="checkbox" v-model="todo.completed" />
+                    {{ todo.title }}
+                </label>
+            </li>
+        </ul>
+        <label>
+            <input type="checkbox" v-model="hideCompleted" />
+            Masquer les tâches complétées
+        </label>
+    </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
 
-const count = ref(0);
-
-const increment = (event) => {
-    console.log(event);
-    count.value++;
+const newTodo = ref("");
+const hideCompleted = ref(false);
+const todos = ref([
+    {
+        title: "Tâche de test",
+        completed: true,
+        date: 1,
+    },
+    {
+        title: "Tâche à faire",
+        completed: false,
+        date: 2,
+    },
+]);
+const addTodo = () => {
+    todos.value.push({
+        title: newTodo.value,
+        completed: false,
+        date: Date.now(),
+    });
+    newTodo.value = "";
 };
-const decrement = () => {
-    count.value--;
+const sortedTodos = () => {
+    const sortedTodos = todos.value.toSorted((a, b) =>
+        a.completed > b.completed ? 1 : -1,
+    );
+    if (hideCompleted.value === true) {
+        return sortedTodos.filter((t) => t.completed === false);
+    }
+    return sortedTodos;
 };
 </script>
 
 <style>
-button {
-    padding: 10px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-family: Roboto, sans-serif;
-}
-button:last-child {
-    margin-left: 10px;
-}
-button:hover {
-    background-color: #2980b9;
-}
-p {
-    font-size: 24px;
-    font-weight: bold;
-    font-family: Roboto, sans-serif;
-}
-div[v-show] {
-    margin-top: 10px;
-    font-size: 18px;
-    color: #2ecc71;
-    font-family: Roboto, sans-serif;
+.completed {
+    opacity: 0.5;
+    text-decoration: line-through;
 }
 </style>
-
-<!-- ########################### -->
-<!-- TP  Todolist avec Vue js    -->
-<!-- ########################### -->
